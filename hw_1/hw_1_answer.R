@@ -84,8 +84,7 @@ if((year%%4==0 & year%%100!=0) | (year%%400==0)) {
 # 3. 一旦猜對，系統可自動計算玩家猜測的次數
 
 
-
-
+sample(0:4, size = 4, replace = FALSE)
 
 
 
