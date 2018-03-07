@@ -61,6 +61,14 @@ for (n in 10:100){
 
 # 請寫一段程式碼，能判斷輸入之西元年分 year 是否為閏年
 
+char<- readline(prompt = "Please input year*")
+year<-as.numeric(char)
+print(year)
+if((year%%4==0 & year%%100!=0) | (year%%400==0)) {
+  print("lunar year")
+}else {
+  print("common year")
+}
 
 
 
