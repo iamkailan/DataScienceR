@@ -33,26 +33,21 @@ for(i in 1:9) {
 ########################################################### Task 3
 
 # 使用sample(), 產出10個介於10~100的整數，並存在變數 nums
-nums <- 10:100
-sample(c(10:100, nums), size = 10)
+nums <-sample(10:100, size = 10)
 
 # 查看nums
 str(nums)
 
 # 1.使用for loop 以及 if-else，印出大於50的偶數，並提示("偶數且大於50": 數字value)
 # 2.特別規則：若數字為66，則提示("太66666666666了")並中止迴圈。
-for (n in 10:100){
-  if(n%%2==0 & n>50){ 
-    if(n==66){
-      print("太66666666666了")
-      break
-    }
-    print("偶數且大於50")
-    print(n)
-  } 
+for(num in nums){
+  if(num==66){
+   print("太66666666666了")
+     break
+  } else if ((num> 50) & (num%%2==0)){
+    print(paste("偶數且大於50:", num))
+  }
 }
-  
-  
   
 
 
