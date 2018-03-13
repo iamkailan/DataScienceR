@@ -18,5 +18,5 @@ for (i in 1:5){
   Sys.sleep(sample(2:5, size = 1))
 }
 mbp_result_df <- data.frame(product_names, product_descriptions, product_prices)
-dim(mbp_result_df)
-head(mbp_result_df, 100)
+View(mbp_result_df)
+
