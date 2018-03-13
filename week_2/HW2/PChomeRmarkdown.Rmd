@@ -1,0 +1,47 @@
+---
+title: "PChomeRmarkdown"
+author: "Sophia"
+date: "2018年3月13日"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 2
+    toc_float:
+      collapsed: false
+      smmoth_scroll: false
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 在PChome搜尋"macbook pro" 所得到的資料
+利用R crawler從PChome搜尋頁上擷取在關鍵字輸入"macbook pro"時得出的結果，內容涵蓋商品名稱、商品敘述及商品價格
+
+## R crawler
+```{r}
+require(jsonlite)
+url <- "https://ecshweb.pchome.com.tw/search/v3.3/all/results?q=macbook%20pro&page=1&sort=rnk/dc"
+macbook_pro_query <- fromJSON(url)
+names(macbook_pro_query)
+page_nums <- 1:macbook_pro_query$totalPage
+
+urls <- paste("https://ecshweb.pchome.com.tw/search/v3.3/all/results?q=macbook%20pro&page=", page_nums, "&sort=rnk/dc", sep = "")
+product_names <- c()
+product_descriptions <- c()
+product_prices <- c()
+###從搜尋頁1-5頁中擷取資料
+for (i in 1:5){
+  single_page_query <- fromJSON(urls[i])
+  product_names <- c(product_names, single_page_query$prods$name)
+  product_descriptions <- c(product_descriptions, single_page_query$prods$describe)
+  product_prices <- c(product_prices, single_page_query$prods$price)
+  Sys.sleep(sample(2:5, size = 1))
+}
+###將結果依照product_names, product_descriptions, product_prices的順序輸出成表格
+library(knitr)
+knitr::opts_chunk$set(echo = TRUE)
+mbp_result_df <- data.frame(product_names, product_descriptions, product_prices)
+kable(mbp_result_df)
+```
+ 
