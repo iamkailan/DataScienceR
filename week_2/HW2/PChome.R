@@ -5,7 +5,7 @@ macbook_pro_query <- fromJSON(url)
 names(macbook_pro_query)
 page_nums <- 1:macbook_pro_query$totalPage
 
-urls <- paste("https://ecshweb.pchome.com.tw/search/v3.3/all/results?q=macbook%20pro&page=", page_nums, "1&sort=rnk/dc", sep = "")
+urls <- paste("https://ecshweb.pchome.com.tw/search/v3.3/all/results?q=macbook%20pro&page=", page_nums, "&sort=rnk/dc", sep = "")
 product_names <- c()
 product_descriptions <- c()
 product_prices <- c()
@@ -18,5 +18,5 @@ for (i in 1:5){
   Sys.sleep(sample(2:5, size = 1))
 }
 mbp_result_df <- data.frame(product_names, product_descriptions, product_prices)
-head(mbp_result_df)
-
+dim(mbp_result_df)
+head(mbp_result_df, 100)
