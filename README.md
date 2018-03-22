@@ -10,3 +10,5 @@
 >>學習RMarkdown
 >>學習html概念
 # Week3
+>>學習Datacamp:Data Visualization with ggplot2 
+>>練習使用ggplot＋ggmap繪製圖表，但是再匯入csv檔時遇到困難，問題尚未解決
