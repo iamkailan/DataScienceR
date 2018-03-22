@@ -1,0 +1,56 @@
+---
+title: "HW3"
+author: "Sophia"
+date: "2018年3月22日"
+output: html_document
+---
+
+## 研究r studio內建資料集"msleep"內容
+msleep資料集內容包含83種哺乳動物的genus, vore, order, conservstion, sleep_total, sleep_rem, sleep_cycle, awake, brainweight, bodyweight的資料，本次研究將選取其中幾個項目來分析其中的關連
+
+## 研究總睡眠時間與體重的關係
+```{r }
+library(ggplot2)
+ggplot(data=msleep) +   
+  
+  # 散布圖對應的函式是geom_point()
+  geom_point(aes(x=sleep_total,  # 用aes()，描繪散布圖內的各種屬性
+                 y=bodywt) 
+  ) + 
+  # 用geom_smooth()加上趨勢線
+  geom_smooth(aes(x=sleep_total,
+                  y=bodywt)) +
+  
+  # 用labs()，進行文字上的標註(Annotation)
+  labs(title="Scatter of sleep_total-bodywt",
+       x="sleep_total",
+       y="bodywt") +
+  
+  # 用theme_bw(background white)，改變主題背景成白色
+  theme_bw()
+```
+
+由此圖可以得知，總睡眠時間與體重相關程度較低，資料集中的哺乳動物不會因為睡眠時數高而有較高的體重。
+
+## 研究頭腦重量與體重的關係
+```{r }
+ggplot(data=msleep) +   
+  
+  # 散布圖對應的函式是geom_point()
+  geom_point(aes(x=brainwt,  # 用aes()，描繪散布圖內的各種屬性
+                 y=bodywt) 
+  ) + 
+  # 用geom_smooth()加上趨勢線
+  geom_smooth(aes(x=brainwt,
+                  y=bodywt)) +
+  
+  # 用labs()，進行文字上的標註(Annotation)
+  labs(title="Scatter of brainwt-bodywt",
+       x="brainwt",
+       y="bodywt") +
+  
+  # 用theme_bw(background white)，改變主題背景成白色
+  theme_bw()       
+```
+
+由此圖可以得知，頭腦重量與體重相關程度較高，通常頭腦重量較低的哺乳類動物體重都較低。
