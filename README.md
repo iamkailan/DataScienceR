@@ -12,3 +12,7 @@
 # Week3
 >>學習Datacamp:Data Visualization with ggplot2 
 >>練習使用ggplot繪製圖表
+# Week4 5
+>>學習如何從臉書擷取文字並製作成文字雲
+>>但是因為電腦版本的問題所以無法實際操作,無法成功製作文字雲,目前還在尋找解決方法中
+>>學習EDA概念,文字探勘概念
