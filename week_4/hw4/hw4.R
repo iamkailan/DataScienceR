@@ -9,7 +9,7 @@ library(wordcloud)
 token <-"EAACEdEose0cBANNQvF3w8KoVLeIo2vFfZAxdSz2OFsN9tGeoX7AksqYdG6hUEO4uDM1KugVs9h5w6vFADyhZBLudWfwzcDJcIfOxpqVwsjg9C1CZABQAMpx0ZCIkzgL5JNIjgMBzRZBIpPRWiJtUZCrWrbqM2DnudrK6bBquJsnPZAyZBRk2Mguz6bByjtOno3oDLqOgBnB0eQZDZD"
 me <- getUsers("me", token, private_info = TRUE)
 me$name
-page.id <- "445164788956922" 
+page.id <- "445164788956922 
 page <- getPage(page.id, token, n = 100)
 docs <- Corpus(VectorSource(page$message))
 toSpace <- content_transformer(function(x, pattern) {
