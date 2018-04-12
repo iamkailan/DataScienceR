@@ -1,7 +1,7 @@
 ---
 title: "hw4"
 author: "Sophia"
-date: "2018å¹´4æœˆ12æ—¥"
+date: "2018å¹?4???12?—¥"
 output: html_document
 ---
 
@@ -9,49 +9,50 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## æ¸¬è©¦æ–‡å­—é›²
-æƒ³çŸ¥é“åœ¨ç²‰çµ²å°ˆé  â€œPopDaily æ³¢æ³¢é»›è‰çš„ç•°æƒ³ä¸–ç•Œâ€œä¸­ç²‰å°ˆç™¼æ–‡æœ€å¸¸å‡ºç¾å“ªäº›æ–‡å­—
-æƒ³å…ˆåˆ©ç”¨æä¾›çš„ç¯„ä¾‹codeä¾†è©¦è©¦çœ‹æœ‰æ²’æœ‰è¾¦æ³•åšå‡ºæ–‡å­—é›²
+##—é›²PopDaily ªiªiÂL²úªº²§·Q¥@¬Éªº¤å¦r¶³
+·Qª¾¹D¦b¯»µ·±M­¶PopDaily ªiªiÂL²úªº²§·Q¥@¬É¤¤µo¤å¥X²{ÀW²v³Ì°ªªº¬O¨º¨Çµü»y
+—é›²
 ```{r }
-library(Rfacebook)
+require("Rfacebook")
 library(NLP)
-library(tm) 
+library(tm)
 library(jiebaRD)
 library(jiebaR)
 library(RColorBrewer)
 library(wordcloud)
-æŠ“å–è‡‰æ›¸è³‡æ–™
-page.id <- "890212461087699" 
-token <- "123646328319174|BXykPz_PGpwMR7909eybOoJkktU" 
+#§ì¨úÁy®Ñ¸ê®Æ
+token <-"EAACEdEose0cBAEkjMBQPustP041kxGh1nHBX5x4dvkqbjqTuGyMS7kEWqfPzaMuQRdr1dZARVZCvvXXnkeFRXLT3JEVIOCGPjs6qlctrwHD7mk0ZBDZBnLMEfkQYZAZBWn9tez77mqOJfdnCPWKOoebuZBKVVDtZBSmx1z1BtDdCdILnp7NT0RoZAGbySZBZANrPaIX58xSkC9wBwZDZD"
+me <- getUsers("me", token, private_info = TRUE)
+me$name
+page.id <- "445164788956922" 
 page <- getPage(page.id, token, n = 300)
-## 25 posts 50 posts 75 posts 100 posts 125 posts 150 posts 175 posts 200 posts 225 posts 250 posts 275 posts 300 posts
-æ–‡æœ¬æ¸…ç†
-docs <- Corpus(VectorSource(page$message))
-toSpace <- content_transformer(function(x, pattern) {
-  return (gsub(pattern, " ", x))}
+#¤å¥»²M²z
+docs <-Corpus(VectorSource(page$message))
+toSpace <- content_transformer(function(x, pattern){
+  return(gsub(pattern," ", x))}
 )
-docs <- tm_map(docs, toSpace, "çš„")
-docs <- tm_map(docs, toSpace, "å•Š")
-docs <- tm_map(docs, toSpace, "ç«™")
-docs <- tm_map(docs, toSpace, "æœ‰")
-docs <- tm_map(docs, toSpace, "äº†")
-docs <- tm_map(docs, toSpace, "æ˜¯")
-docs <- tm_map(docs, toSpace, "å¾ˆ")
-docs <- tm_map(docs, toSpace, "éƒ½")
-docs <- tm_map(docs, toSpace, "åœ¨")
-docs <- tm_map(docs, toSpace, "å’Œ")
-docs <- tm_map(docs, toSpace, "é€™")
-docs <- tm_map(docs, toSpace, "è®“")
-docs <- tm_map(docs, toSpace, "è·Ÿ")
-docs <- tm_map(docs, toSpace, "å°±")
-docs <- tm_map(docs, toSpace, "çœŸ")
-docs <- tm_map(docs, toSpace, "ä¸Š")
-docs <- tm_map(docs, toSpace, "ä½†")
-docs <- tm_map(docs, toSpace, "åˆ")
+docs <- tm_map(docs, toSpace, "ªº")
+docs <- tm_map(docs, toSpace, "°Ú")
+docs <- tm_map(docs, toSpace, "¯¸")
+docs <- tm_map(docs, toSpace, "¦³")
+docs <- tm_map(docs, toSpace, "¤F")
+docs <- tm_map(docs, toSpace, "¬O")
+docs <- tm_map(docs, toSpace, "«Ü")
+docs <- tm_map(docs, toSpace, "³£")
+docs <- tm_map(docs, toSpace, "¦b")
+docs <- tm_map(docs, toSpace, "©M")
+docs <- tm_map(docs, toSpace, "³o")
+docs <- tm_map(docs, toSpace, "Åı")
+docs <- tm_map(docs, toSpace, "¸ò")
+docs <- tm_map(docs, toSpace, "´N")
+docs <- tm_map(docs, toSpace, "¯u")
+docs <- tm_map(docs, toSpace, "¤W")
+docs <- tm_map(docs, toSpace, "¦ı")
+docs <- tm_map(docs, toSpace, "¤S")
 docs <- tm_map(docs, removePunctuation)
 docs <- tm_map(docs, removeNumbers)
 docs <- tm_map(docs, stripWhitespace)
-è£½ä½œæ–‡å­—é›²
+#¤å¦r¶³
 mixseg = worker()
 jieba_tokenizer=function(d){
   unlist(segment(d[[1]],mixseg))
@@ -65,4 +66,6 @@ wordcloud(freqFrame$Var1,freqFrame$Freq,
           rot.per=0, colors=brewer.pal(8, "Dark2"),
           ordered.colors=FALSE,use.r.layout=FALSE,
           fixed.asp=TRUE)
+
+
 ```
