@@ -1,5 +1,6 @@
 # DataScienceR
 工管三 曹書華
+https://sophiasufas.github.io/DataScienceR/.
 # Week1
 >學習歷程
 >>完成Datacamp:R語言導論ch1-6
