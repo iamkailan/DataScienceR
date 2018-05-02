@@ -1,0 +1,173 @@
+---
+title: "hw8"
+author: "Sophia"
+date: "2018年5月2日"
+output: html_document
+---
+## Load packages
+```{r }
+library('ggplot2') # visualization
+library('ggthemes') # visualization
+library('scales') # visualization
+library('dplyr') # data manipulation
+library('mice') # imputation
+library('rpart')
+library('randomForest') # classification algorithm
+```
+## 導入資料
+```{r }
+train <- read.csv('/Users/sophiasufas/Desktop/R/GitHub/DataScienceR/DataScienceR/week_8/hw8/train.csv', stringsAsFactors = F)
+test  <- read.csv('/Users/sophiasufas/Desktop/R/GitHub/DataScienceR/DataScienceR/week_8/hw8/test.csv', stringsAsFactors = F)
+test$Survived <- NA
+train_test <- rbind(train,test)
+```
+## 處理資料中缺少的變量
+<br>看看資料集中有缺少什麼
+```{r }
+sapply(train_test,function(x) sum(is.na(x)))
+sapply(train_test,function(x) sum(x == ""))
+```
+<br>由此可知，需要處理變量Age, Fare, Cabin, Embarked
+<br>### Fare
+<br>查看Fare缺失值的乘客基本信息
+```{r }
+faremiss <- which(is.na(train_test$Fare))
+train_test[faremiss,]
+```
+<br>對其他的乘客的票價進行視覺化來估計這位客人的票價(根據登船港口,船艙等級,年齡)
+```{r }
+Fareage <- ggplot(train_test[train_test$Pclass=='3' & train_test$Embarked=='S' & train_test$Age>=50 ,],
+                aes( x=Fare )) +
+  geom_density( fill = '#99d6ff',alpha=0.4 ) +
+  geom_vline(aes(xintercept=median(Fare,na.rm=T)),colour='red',linetype='dashed') +
+  ggtitle("Fare1:Age considered") +
+  scale_x_continuous(labels=dollar_format()) +
+  theme_few()
+Fareothers <- ggplot(train_test[train_test$Pclass=='3' & train_test$Embarked=='S',], 
+                     aes( x=Fare )) +
+  geom_density(fill = '#99d6ff',alpha=0.4 ) +
+  geom_vline(aes(xintercept=median(Fare,na.rm=T)),colour='red',linetype='dashed' ) +
+  ggtitle("Fare2:Regardless of age") + 
+  scale_x_continuous(labels=dollar_format()) +
+  theme_few()
+library(gridExtra)
+grid.arrange(Fareage, Fareothers, ncol=2, nrow=1)
+```
+<br>由此可推得票價大約落在"8"左右
+<br>看具體數值來比較繪圖的精準度
+```{r }
+Fareage <- median(train_test[train_test$Pclass=='3' & train_test$Embarked=='S' & train_test$Age>=50 ,]$Fare,
+                  na.rm = TRUE)
+Fareage
+Fareothers <- median(train_test[train_test$Pclass=='3' & train_test$Embarked=='S' ,]$Fare,
+                     na.rm = TRUE)
+Fareothers
+```
+<br>依此看來價格也大約落在"8"左右，因此可以將缺失的fare賦值為8
+```{r }
+train_test$Fare[faremiss] <- 8.00
+```
+####觀察票價與存活率的相關程度
+```{r }
+ggplot(train_test[1:891,], aes(x = Fare, color = factor(Survived))) +
+  geom_line(stat='count', position='dodge') +
+  theme_few()
+```
+<br>可以看出來票價對存活率的影響，fare越大，存活率越高
+
+### Embarked
+```{r }
+embarkedmiss <- which(train_test$Embarked=="")
+train_test[embarkedmiss,]
+embark_fare <- train_test %>% #去除有缺值的行
+  filter(PassengerId != 62 & PassengerId != 830)
+```
+<br>藉由其他乘客的艙等、票價來推測這兩位乘客的登船港口
+<br>視覺化登船港口與艙等和票價的關係
+```{r }
+ggplot(embark_fare, aes(x = Embarked, y = Fare, fill = factor(Pclass))) +
+  geom_boxplot() +
+  geom_hline(aes(yintercept=80), 
+             colour='red', linetype='dashed', lwd=2) +
+  scale_y_continuous(labels=dollar_format()) +
+  theme_few()
+train_test$Embarked[c(62, 830)] <- 'C'
+train_test$Embarked <- factor(train_test$Embarked)
+```
+<br>由圖可以看出c港乘客多搭乘頭等艙(Pclass:1), 而頭等艙的票價中位數大約是80,可以推斷Pclass為1且票價為＄80的這兩位乘客應該是於c港登船
+
+##新特徵-家庭規模
+
+<br>我認為在遇難時家庭通常會一起逃生，有可能同時遇難或倖存，如果不同家庭規模應該會與存活率相關，所以將SibSb和Parch合併為新的變量-familysize
+```{r }
+train_test$familysize <- train_test$SibSp + train_test$Parch +1
+```
+<br>視覺化家庭規模與存活率的關係
+```{r }
+ggplot(train_test[1:891,], aes(x = familysize, fill = factor(Survived))) +
+  geom_bar(stat='count', position='dodge') +
+  scale_x_continuous(breaks=c(1:11)) +
+  labs(x = 'Family Size') +
+  theme_few()
+```
+<br>從這個圖可以看出來在與家庭同時搭船的旅客存活比率較高
+```{r }
+train_test$familysize <- factor(train_test$familysize)
+```
+###乘客頭銜
+```{r }
+train_test$Ptitle <- gsub('(.*, )|(\\..*)', '', train_test$Name)
+##整理
+rare_title <- c('Dona', 'Lady', 'the Countess','Capt', 'Col', 'Don', 
+                'Dr', 'Major', 'Rev', 'Sir', 'Jonkheer')
+train_test$Ptitle[train_test$Ptitle == 'Mlle']        <- 'Miss' 
+train_test$Ptitle[train_test$Ptitle == 'Ms']          <- 'Miss'
+train_test$Ptitle[train_test$Ptitle == 'Mme']         <- 'Mrs' 
+train_test$Ptitle[train_test$Ptitle %in% rare_title]  <- 'Rare Title'
+train_test$Ptitle <- factor(train_test$Ptitle)
+table(train_test$Sex, train_test$Ptitle)
+```
+### Age
+利用rpart套件來預測並填補Age的缺失值，由於加上家庭因素以及頭銜會使預測更加令人信服，所以這裡先處理一部分的變量之後才開始填補缺失值
+```{r }
+age_model <- rpart(Age~Pclass+Sex+SibSp+Parch+Fare+Embarked+Ptitle+familysize,
+                   data=train_test[!is.na(train_test$Age),],method='anova')
+train_test$Age[is.na(train_test$Age)] <- predict(age_model,train_test[is.na(train_test$Age),])
+```
+查看年齡、性別與存活率的關係
+```{r }
+ggplot(train_test[1:891,], aes(Age, fill = factor(Survived))) + 
+  geom_histogram() + 
+  facet_grid(.~Sex) + 
+  theme_few()
+```
+<br>可以看得出來小孩的存活率是超過成年人，而且女性的存活率遠遠超過男性
+
+## 新特徵-年齡段
+將全部乘客年齡段為兒童、青年及成年人
+```{r }
+train_test$Age_group[train_test$Age <= 12] <- 'Child'
+train_test$Age_group[train_test$Age > 12 & train_test$Age < 18] <- 'youth'
+train_test$Age_group[train_test$Age >= 18] <- 'Adult'
+train_test$Age_group  <- factor(train_test$Age_group)
+```
+<br>視覺化統計結果
+```{r }
+mosaicplot(table(train_test$Age_group,
+                 train_test$Survived),main='Comparison of child and adult',
+           color=c("pink","lightblue"))
+```
+<br>可以再次確認兒童的存活率是大於船上其他年齡段的
+
+##建模預測
+```{r }
+train_test$Sex <- as.factor(train_test$Sex)
+train <- train_test[1:891,]
+test <- train_test[892:1309,]
+set.seed(754) #隨機種子
+rf_model <- randomForest(factor(Survived) ~ Sex + Ptitle + Pclass + Embarked +
+                           Age_group + Fare + familysize, data = train)
+prediction <- predict(rf_model, test)
+solution <- data.frame(PassengerID = test$PassengerId, Survived = prediction)
+write.csv(solution, file = 'hw8.csv', row.names = F)
+```
