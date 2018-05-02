@@ -58,6 +58,8 @@ ggplot(embark_fare, aes(x = Embarked, y = Fare, fill = factor(Pclass))) +
              colour='red', linetype='dashed', lwd=2) +
   scale_y_continuous(labels=dollar_format()) +
   theme_few()
+train_test$Embarked[c(62, 830)] <- 'C'
+train_test$Embarked <- factor(train_test$Embarked)
 # 新特徵-家庭規模
 train_test$familysize <- train_test$SibSp + train_test$Parch +1
 # 視覺化家庭規模與存活率的關係
@@ -66,7 +68,7 @@ ggplot(train_test[1:891,], aes(x = familysize, fill = factor(Survived))) +
   scale_x_continuous(breaks=c(1:11)) +
   labs(x = 'Family Size') +
   theme_few()
-train_test$familysize <- factor(train_test$familysize)
+train_test$familysize <- as.factor(train_test$familysize)
 # 乘客頭銜
 train_test$Ptitle <- gsub('(.*, )|(\\..*)', '', train_test$Name)
 table(train_test$Sex, train_test$Ptitle) #根據性別來顯示頭銜
@@ -77,5 +79,32 @@ train_test$Ptitle[train_test$Ptitle == 'Mlle']        <- 'Miss'
 train_test$Ptitle[train_test$Ptitle == 'Ms']          <- 'Miss'
 train_test$Ptitle[train_test$Ptitle == 'Mme']         <- 'Mrs' 
 train_test$Ptitle[train_test$Ptitle %in% rare_title]  <- 'Rare Title'
-train_test$Ptitle <- factor(train_test$Ptitle)
+train_test$Ptitle <- as.factor(train_test$Ptitle)
 table(train_test$Sex, train_test$Ptitle)
+# Age
+age_model <- rpart(Age~Pclass+Sex+SibSp+Parch+Fare+Embarked+Ptitle+familysize,
+                   data=train_test[!is.na(train_test$Age),],method='anova')
+train_test$Age[is.na(train_test$Age)] <- predict(age_model,train_test[is.na(train_test$Age),])
+# 查看年齡、性別與存活率的關係
+ggplot(train_test[1:891,], aes(Age, fill = factor(Survived))) + 
+  geom_histogram() + 
+  facet_grid(.~Sex) + 
+  theme_few()
+## 新特徵-年齡段
+train_test$Age_group[train_test$Age <= 12] <- 'Child'
+train_test$Age_group[train_test$Age > 12 & train_test$Age < 18] <- 'youth'
+train_test$Age_group[train_test$Age >= 18] <- 'Adult'
+train_test$Age_group  <- factor(train_test$Age_group)
+mosaicplot(table(train_test$Age_group,
+                 train_test$Survived),main='Comparison of child and adult',
+           color=c("pink","lightblue"))
+#建模預測
+train_test$Sex <- as.factor(train_test$Sex)
+train <- train_test[1:891,]
+test <- train_test[892:1309,]
+set.seed(754) #隨機種子
+rf_model <- randomForest(factor(Survived) ~ Sex + Ptitle + Pclass + Embarked +
+                           Age_group + Fare + familysize, data = train)
+prediction <- predict(rf_model, test)
+solution <- data.frame(PassengerID = test$PassengerId, Survived = prediction)
+write.csv(solution, file = 'hw8.csv', row.names = F)
