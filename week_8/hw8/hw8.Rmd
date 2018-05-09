@@ -16,8 +16,8 @@ library('randomForest') # classification algorithm
 ```
 ## 導入資料
 ```{r }
-train <- read.csv('/Users/sophiasufas/Desktop/R/GitHub/DataScienceR/DataScienceR/week_8/hw8/train.csv', stringsAsFactors = F)
-test  <- read.csv('/Users/sophiasufas/Desktop/R/GitHub/DataScienceR/DataScienceR/week_8/hw8/test.csv', stringsAsFactors = F)
+train <- read.csv('/Users/sophiasufas/Desktop/R/GitHub/DataScienceR/DataScienceR/week_8/task_8/titanicTrain.csv', stringsAsFactors = F)
+test  <- read.csv('/Users/sophiasufas/Desktop/R/GitHub/DataScienceR/DataScienceR/week_8/task_8/titanicQuestion.csv', stringsAsFactors = F)
 test$Survived <- NA
 train_test <- rbind(train,test)
 ```
